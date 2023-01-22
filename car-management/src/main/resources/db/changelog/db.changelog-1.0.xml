@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.0.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <changeSet id="1" author="radu">
+        <sql>
+            CREATE TABLE car (
+            id BIGINT NOT NULL AUTO_INCREMENT,
+            name VARCHAR(255) NOT NULL,
+            type VARCHAR(255) NOT NULL,
+            category VARCHAR(255),
+            price BIGINT,
+            year DATE,
+            CONSTRAINT pk_id PRIMARY KEY (id)
+            );
+        </sql>
+        <rollback>
+            DROP TABLE car;
+        </rollback>
+    </changeSet>
+    <changeSet id="2" author="radu">
+        <sql>
+            CREATE TABLE transaction (
+            id BIGINT NOT NULL AUTO_INCREMENT,
+            car_id BIGINT NOT NULL,
+            user_id BIGINT NOT NULL,
+            date_of_issue DATETIME,
+            CONSTRAINT pk_id PRIMARY KEY (id),
+            CONSTRAINT fk_tran_car FOREIGN KEY (car_id) REFERENCES car(id) ON DELETE CASCADE ON UPDATE CASCADE
+            );
+        </sql>
+        <rollback>
+            DROP TABLE transaction;
+        </rollback>
+    </changeSet>
+    <changeSet id="3" author="radu">
+        <sql>
+            INSERT INTO car (name, type, category, price, year) VALUES('Audi A4', 'Sedan', 'Family car', 100, NOW());
+            INSERT INTO car (name, type, category, price, year) VALUES('Mercedes E Class', 'Limousine', 'Premium car', 250, NOW());
+            INSERT INTO car (name, type, category, price, year) VALUES('Skoda Octavia III', 'Sedan', 'Family car', 70, NOW());
+            INSERT INTO car (name, type, category, price, year) VALUES('VW Tiguan', 'SUV', 'Offroad car', 90, NOW());
+            INSERT INTO car (name, type, category, price, year) VALUES('BMW Z4', 'Coupe', 'Sport car', 300, NOW());
+        </sql>
+        <rollback>
+            TRUNCATE TABLE car;
+        </rollback>
+    </changeSet>
+</databaseChangeLog>
