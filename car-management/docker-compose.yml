@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+  docker-mysql:
+    image: mysql/mysql-server:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=micro_user
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=radu1234
+    volumes:
+      - my-datavolume:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  eureka-container:
+    image: eureka-docker
+    ports:
+      - "8761:8761"
+    environment:
+      eureka.client.serviceUrl.defaultZone: http://host.docker.internal:8761/eureka/
+
+  user-container:
+    image: user-docker
+    ports:
+      - "8000:8000"
+    depends_on:
+      - docker-mysql
+      - eureka-container
+    links:
+      - eureka-container
+    environment:
+      server.port: 8761
+      eureka.client.serviceUrl.defaultZone: http://host.docker.internal:8761/eureka/
+
+  car-container:
+    image: car-docker
+    ports:
+      - "8001:8001"
+    depends_on:
+      - docker-mysql
+      - eureka-container
+    links:
+      - eureka-container
+    environment:
+      server.port: 8761
+      eureka.client.serviceUrl.defaultZone: http://host.docker.internal:8761/eureka/
+
+  zuul-container:
+    image: zuul-docker
+    ports:
+      - "8765:8765"
+    depends_on:
+      - eureka-container
+    links:
+      - eureka-container
+    environment:
+      server.port: 8761
+      eureka.client.serviceUrl.defaultZone: http://host.docker.internal:8761/eureka/
+
+#  client:
+#    build: /Users/vladprundus/Documents/soa/project/Service-Oriented-Architecture/soa-client
+#    environment:
+#      - REACT_APP_PORT=4000
+#    expose:
+#      - 4000
+#    ports:
+#      - "4000:4000"
+#    links:
+#      - zuul-container
+#      - eureka-container
+#      - user-container
+#      - car-container
+#    command: npm start
+
+volumes:
+  my-datavolume:
